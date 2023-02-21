@@ -58,14 +58,43 @@ void analyzeFile(char * subredditName) {
     * (char *) (fileText->contents + fileText->size - 1) = '\0';
     
     int charCounter[26] = {0};
+    int charPairCounter[26 * 26] = {0};
+
+    char prevC = 0;
 
     for (int i = 0; i < fileText->size; i++) {
         c = * (char *) (fileText->contents + i);
         if (('a' <= c) && (c <= 'z')) {
             charCounter[c - 'a'] ++;
+            if (('a' <= prevC) && (prevC <= 'z')) {
+                charPairCounter[((prevC - 'a') * 26) + (c - 'a')] ++;
+                if ((((prevC - 'a') * 26) + (c - 'a')) == 0) {
+                    printf("%c%c\n", prevC, c);
+                }
+            } else if (('A' <= prevC) && (prevC <= 'z')) {
+                charPairCounter[((prevC - 'A') * 26) + ((c - 'a'))] ++;
+                if ((((prevC - 'A') * 26) + (c - 'a')) == 0) {
+                    printf("%c%c\n", prevC, c);
+                }
+            }
         } else if (('A' <= c) && (c <= 'Z')) {
             charCounter[c - 'A'] ++;
+            if (('a' <= prevC) && (prevC <= 'z')) {
+                charPairCounter[((prevC - 'a') * 26) + (c - 'A')] ++;
+                if ((((prevC - 'a') * 26) + (c - 'A')) == 0) {
+                    printf("%c%c\n", prevC, c);
+                }
+            } else if (('A' <= prevC) && (prevC <= 'z')) {
+                charPairCounter[((prevC - 'A') * 26) + ((c - 'A'))] ++;
+                if ((((prevC - 'A') * 26) + (c - 'A')) == 0) {
+                    printf("%c%c\n", prevC, c);
+                }
+            }
+        } else {
+            c = 0;
         }
+
+        prevC = c;
     }
 
     CREATEMEMSTRUCT(csvNewLine, char);
@@ -87,17 +116,45 @@ void analyzeFile(char * subredditName) {
     printf("%s", (char *) csvNewLine->contents);
 
     FILE * outputFile;
-    outputFile = fopen("outputs.csv", "a+");
+    outputFile = fopen("singleLetterOutputs.csv", "a+");
     fputs(subredditName, outputFile);
     fputs(",", outputFile);
     fputs(csvNewLine->contents, outputFile);
-
+    
     fclose(outputFile);
     fclose(downloadFile);
     FREEMEMSTRUCT(csvNewLine);
     FREEMEMSTRUCT(addition);
     FREEMEMSTRUCT(fileName);
     FREEMEMSTRUCT(fileText);
+
+    CREATEMEMSTRUCT(addition, char);
+    CREATEMEMSTRUCT(csvNewLine, char);
+
+    for (int i = 0; i < (26 * 26); i++) {
+        if (i == 0) {
+            printf("%d\n", charPairCounter[i]);
+        }
+        addition->size = getNumDigits(charPairCounter[i]) + 1;
+        addition->contents = realloc(addition->contents, addition->size);
+        snprintf(addition->contents, addition->size, "%d", charPairCounter[i]);
+
+        if (i < ((26 * 25) + 25)) {
+            CATSTRTOMEMORYSTRUCT(addition, ",");
+        }
+
+        MEMSTRUCTCAT(csvNewLine, addition);
+    }
+
+    outputFile = fopen("letterPairOutputs.csv", "a+");
+    fputs(subredditName, outputFile);
+    fputc(',', outputFile);
+    fputs(csvNewLine->contents, outputFile);
+    fputc('\n', outputFile);
+
+    fclose(outputFile);
+    FREEMEMSTRUCT(csvNewLine);
+    FREEMEMSTRUCT(addition);
 }
 
 int main() {
@@ -127,9 +184,21 @@ int main() {
     fclose(subredditsFile);
 
     FILE * outputFile;
-    outputFile = fopen("outputs.csv", "w");
+    outputFile = fopen("singleLetterOutputs.csv", "w");
     fputs("Subreddit,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z\n", outputFile);
 
+    fclose(outputFile);
+
+    outputFile = fopen("letterPairOutputs.csv", "w");
+    fputs("Subreddit,", outputFile);
+    for (int i = 0; i < (26 * 26); i++) {
+        fputc('A' + (char) (floor(i / 26)), outputFile);
+        fputc('A' + (i % 26), outputFile);
+        if (i != ((26 * 25) + 25)) {
+            fputc(',', outputFile);
+        }
+    }
+    fputc('\n', outputFile);
     fclose(outputFile);
 
     FREEMEMSTRUCT(subredditName);
