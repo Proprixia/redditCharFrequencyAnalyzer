@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <json-c/json.h>
 #include "macros.c"
 
 struct memory {
@@ -24,7 +25,7 @@ int getNumDigits (int numIn) {
     return numDigits;
 }
 
-void analyzeFile(char * subredditName) {
+void analyzeFile(char * subredditName, char * downloadsDirectory) {
     FILE * downloadFile;
     int fileSize;
     struct memory * addition;
@@ -33,7 +34,7 @@ void analyzeFile(char * subredditName) {
     struct memory * fileText;
 
     CREATEMEMSTRUCT(fileName, char);
-    CATSTRTOMEMORYSTRUCT(fileName, "./Downloads/");
+    CATSTRTOMEMORYSTRUCT(fileName, downloadsDirectory);
     CATSTRTOMEMORYSTRUCT(fileName, subredditName);
 
 
@@ -68,27 +69,15 @@ void analyzeFile(char * subredditName) {
             charCounter[c - 'a'] ++;
             if (('a' <= prevC) && (prevC <= 'z')) {
                 charPairCounter[((prevC - 'a') * 26) + (c - 'a')] ++;
-                if ((((prevC - 'a') * 26) + (c - 'a')) == 0) {
-                    printf("%c%c\n", prevC, c);
-                }
             } else if (('A' <= prevC) && (prevC <= 'z')) {
                 charPairCounter[((prevC - 'A') * 26) + ((c - 'a'))] ++;
-                if ((((prevC - 'A') * 26) + (c - 'a')) == 0) {
-                    printf("%c%c\n", prevC, c);
-                }
             }
         } else if (('A' <= c) && (c <= 'Z')) {
             charCounter[c - 'A'] ++;
             if (('a' <= prevC) && (prevC <= 'z')) {
                 charPairCounter[((prevC - 'a') * 26) + (c - 'A')] ++;
-                if ((((prevC - 'a') * 26) + (c - 'A')) == 0) {
-                    printf("%c%c\n", prevC, c);
-                }
             } else if (('A' <= prevC) && (prevC <= 'z')) {
                 charPairCounter[((prevC - 'A') * 26) + ((c - 'A'))] ++;
-                if ((((prevC - 'A') * 26) + (c - 'A')) == 0) {
-                    printf("%c%c\n", prevC, c);
-                }
             }
         } else {
             c = 0;
@@ -163,7 +152,9 @@ int main() {
     struct memory * fileText;
     struct memory * subredditName;
 
-    subredditsFile = fopen("subreddits", "r");
+    json_object * configFile = json_object_from_file("config.json");
+
+    subredditsFile = fopen(json_object_get_string(json_object_object_get(configFile, "subredditsFile")), "r");
     fseek(subredditsFile, 0, SEEK_END);
     fileSize = ftell(subredditsFile);
     rewind(subredditsFile);
@@ -207,7 +198,7 @@ int main() {
     for (int i = 0; i < fileText->size; i++) {
         if (* (char *) (fileText->contents + i) == '\n') {
             printf("%s\n", (char *) subredditName->contents);
-            analyzeFile((char *) subredditName->contents);
+            analyzeFile((char *) subredditName->contents, (char *) json_object_get_string(json_object_object_get(configFile, "downloadsDirectory")));
             subredditName->size = 1;
             subredditName->contents = realloc(subredditName->contents, subredditName->size);
         } else {
@@ -220,4 +211,5 @@ int main() {
 
     FREEMEMSTRUCT(fileText);
     FREEMEMSTRUCT(subredditName);
+    json_object_put(configFile);
 }
