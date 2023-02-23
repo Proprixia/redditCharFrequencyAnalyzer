@@ -25,7 +25,7 @@ int getNumDigits (int numIn) {
     return numDigits;
 }
 
-void analyzeFile(char * subredditName, char * downloadsDirectory) {
+void analyzeFile(char * subredditName, json_object * configFile) {
     FILE * downloadFile;
     int fileSize;
     struct memory * addition;
@@ -34,9 +34,8 @@ void analyzeFile(char * subredditName, char * downloadsDirectory) {
     struct memory * fileText;
 
     CREATEMEMSTRUCT(fileName, char);
-    CATSTRTOMEMORYSTRUCT(fileName, downloadsDirectory);
+    CATSTRTOMEMORYSTRUCT(fileName, json_object_get_string(json_object_object_get(configFile, "downloadsDirectory")));
     CATSTRTOMEMORYSTRUCT(fileName, subredditName);
-
 
     printf("%s\n", (char *) fileName->contents);
 
@@ -105,7 +104,7 @@ void analyzeFile(char * subredditName, char * downloadsDirectory) {
     printf("%s", (char *) csvNewLine->contents);
 
     FILE * outputFile;
-    outputFile = fopen("singleLetterOutputs.csv", "a+");
+    outputFile = fopen(json_object_get_string(json_object_object_get(configFile, "singleLetterOutputsFile")), "a+");
     fputs(subredditName, outputFile);
     fputs(",", outputFile);
     fputs(csvNewLine->contents, outputFile);
@@ -135,7 +134,7 @@ void analyzeFile(char * subredditName, char * downloadsDirectory) {
         MEMSTRUCTCAT(csvNewLine, addition);
     }
 
-    outputFile = fopen("letterPairOutputs.csv", "a+");
+    outputFile = fopen(json_object_get_string(json_object_object_get(configFile, "letterPairOutputsFile")), "a+");
     fputs(subredditName, outputFile);
     fputc(',', outputFile);
     fputs(csvNewLine->contents, outputFile);
@@ -175,12 +174,12 @@ int main() {
     fclose(subredditsFile);
 
     FILE * outputFile;
-    outputFile = fopen("singleLetterOutputs.csv", "w");
+    outputFile = fopen(json_object_get_string(json_object_object_get(configFile, "singleLetterOutputsFile")), "w");
     fputs("Subreddit,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z\n", outputFile);
 
     fclose(outputFile);
 
-    outputFile = fopen("letterPairOutputs.csv", "w");
+    outputFile = fopen(json_object_get_string(json_object_object_get(configFile, "letterPairOutputsFile")), "w");
     fputs("Subreddit,", outputFile);
     for (int i = 0; i < (26 * 26); i++) {
         fputc('A' + (char) (floor(i / 26)), outputFile);
@@ -198,7 +197,7 @@ int main() {
     for (int i = 0; i < fileText->size; i++) {
         if (* (char *) (fileText->contents + i) == '\n') {
             printf("%s\n", (char *) subredditName->contents);
-            analyzeFile((char *) subredditName->contents, (char *) json_object_get_string(json_object_object_get(configFile, "downloadsDirectory")));
+            analyzeFile((char *) subredditName->contents, configFile);
             subredditName->size = 1;
             subredditName->contents = realloc(subredditName->contents, subredditName->size);
         } else {
