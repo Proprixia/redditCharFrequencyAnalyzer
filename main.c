@@ -58,7 +58,7 @@ void analyzeFile(char * subredditName, json_object * configFile) {
     * (char *) (fileText->contents + fileText->size - 1) = '\0';
     
     int charCounter[26] = {0};
-    int charPairCounter[26 * 26] = {0};
+    int charPairCounter[27 * 27] = {0};
 
     char prevC = 0;
 
@@ -67,16 +67,28 @@ void analyzeFile(char * subredditName, json_object * configFile) {
         if (('a' <= c) && (c <= 'z')) {
             charCounter[c - 'a'] ++;
             if (('a' <= prevC) && (prevC <= 'z')) {
-                charPairCounter[((prevC - 'a') * 26) + (c - 'a')] ++;
+                charPairCounter[((prevC - 'a') * 27) + (c - 'a')] ++;
             } else if (('A' <= prevC) && (prevC <= 'z')) {
-                charPairCounter[((prevC - 'A') * 26) + ((c - 'a'))] ++;
+                charPairCounter[((prevC - 'A') * 27) + ((c - 'a'))] ++;
+            } else if (' ' == prevC) {
+                charPairCounter[(27 * 26) + (c - 'a')] ++;
             }
         } else if (('A' <= c) && (c <= 'Z')) {
             charCounter[c - 'A'] ++;
             if (('a' <= prevC) && (prevC <= 'z')) {
-                charPairCounter[((prevC - 'a') * 26) + (c - 'A')] ++;
+                charPairCounter[((prevC - 'a') * 27) + (c - 'A')] ++;
             } else if (('A' <= prevC) && (prevC <= 'z')) {
-                charPairCounter[((prevC - 'A') * 26) + ((c - 'A'))] ++;
+                charPairCounter[((prevC - 'A') * 27) + ((c - 'A'))] ++;
+            } else if (' ' == prevC) {
+                charPairCounter[(27 * 26) + (c - 'A')] ++;
+            }
+        } else if (' ' == c) { 
+            if ('a' <= prevC && prevC <= 'z') {
+                charPairCounter[27 * (prevC - 'a') + 26] ++;
+            } else if ('A' <= prevC && prevC <= 'Z') {
+                charPairCounter[27 * (prevC - 'A') + 26] ++;
+            } else if(c == ' ') {
+                charPairCounter[27 * 27 - 1] ++;
             }
         } else {
             c = 0;
@@ -119,7 +131,9 @@ void analyzeFile(char * subredditName, json_object * configFile) {
     CREATEMEMSTRUCT(addition, char);
     CREATEMEMSTRUCT(csvNewLine, char);
 
-    for (int i = 0; i < (26 * 26); i++) {
+    printf("Number of \"_Z\": %d\n", charPairCounter[27 * 27 - 2]);
+
+    for (int i = 0; i < (27 * 27); i++) {
         if (i == 0) {
             printf("%d\n", charPairCounter[i]);
         }
@@ -127,7 +141,7 @@ void analyzeFile(char * subredditName, json_object * configFile) {
         addition->contents = realloc(addition->contents, addition->size);
         snprintf(addition->contents, addition->size, "%d", charPairCounter[i]);
 
-        if (i < ((26 * 25) + 25)) {
+        if (i < ((27 * 27) - 1)) {
             CATSTRTOMEMORYSTRUCT(addition, ",");
         }
 
@@ -181,10 +195,19 @@ int main() {
 
     outputFile = fopen(json_object_get_string(json_object_object_get(configFile, "letterPairOutputsFile")), "w");
     fputs("Subreddit,", outputFile);
-    for (int i = 0; i < (26 * 26); i++) {
-        fputc('A' + (char) (floor(i / 26)), outputFile);
-        fputc('A' + (i % 26), outputFile);
-        if (i != ((26 * 25) + 25)) {
+    for (int i = 0; i < (27 * 27); i++) {
+        if ((int) floor(i / 27) != 26) {
+            fputc((int) floor(i / 27) + 'A', outputFile);
+        } else {
+            fputc('_', outputFile);
+        }
+        if (i % 27 != 26) {
+            fputc(i % 27 + 'A', outputFile);
+        } else {
+            fputc('_', outputFile);
+        }
+
+        if (i != (27 * 27 - 1)) {
             fputc(',', outputFile);
         }
     }
