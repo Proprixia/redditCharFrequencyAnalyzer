@@ -1,1 +1,1 @@
-{"subredditsFile": "./subreddits", "downloadsDirectory": "./Downloads/", "singleLetterOutputsFile": "./testSingleLetterOutputs.csv", "letterPairOutputsFile": "testLetterPairNewOutputs.csv", "wordsOutputFile": "testWordsOutput.csv"}
+{"subredditsFile": "./subreddits", "downloadsDirectory": "./Downloads/", "singleLetterOutputsFile": "./singleLetterOutputs.csv", "letterPairOutputsFile": "letterPairOutputs.csv", "wordsOutputFile": "wordsOutput.csv"}
