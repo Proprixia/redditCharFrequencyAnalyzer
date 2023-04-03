@@ -1,4 +1,4 @@
-This program is a letter counter that analyzes how many times each letter is used in a set of input files listed to it by a "subreddits" file.
+This program is a letter counter that analyzes how many times each letter and word is used in a set of input files listed to it by a "subreddits" file.
 The analyzer was built as part of an inquiry into whether and why different online communities exhibit different patterns in letter frequency.
 This program's sister project is a program which downloads the top 100 posts from each Subreddit in a text file, "subreddits", alongside all of the comments. The sister project can be found at https://github.com/Proprixia/redditCharFreqDownloader.
 The program is licensed under the GNU Public License version 3, or a later version at your option.
@@ -9,8 +9,7 @@ You will need to set several options in the "config.json" file in the same direc
 + "downloadsDirectory": The input directory containing each subreddit you wish to analyze, with each subreddit text download in its own file, a file with which it shares a name
 + "singleLetterOutputsFile": A csv output file to be created containing data about the frequency of individual letters in each subreddit
 + "letterPairOutputsFile": A csv output file to be created containing data about the frequency of pairs of letters in each subreddit
++ "wordsOutputFile": A csv output file to be created ontaining data about the frequency of words (strings seperated by non-letter characters) in each subreddit
 Once all of these values are set, with matching files existing for "subredditsFile" and "downloadsDirectory", you may run the executable. As of February 22, 2023, there are no options at execution time. Enjoy your data!
 
-If you have any questions, comments, or concerns, please contact the developer at Proprixia on GitHub.
-
-In the future, I may add advanced configuration options, better feedback, more advanced statistics, and immunity to certain errors.
+If you have any questions, comments, or concerns, please contact the developer at Proprixia on GitHub. I'd love to see your feedback! <3
