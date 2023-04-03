@@ -138,7 +138,6 @@ void countWords(struct json_object * configFile) {
 
             printf("Opening file: %s\n", (char *) currentFileName->contents); // Print useful feedbakck for the user.
 
-            fprintf(wordsOutputFile, ", %s", (char *) currentSubreddit->contents); // Output to the output CSV the title of each subreddit, just for CSV clearness.
             
             downloadFile = fopen((char *) currentFileName->contents, "r"); // Opens the appropriate file to scan through
 
@@ -152,6 +151,7 @@ void countWords(struct json_object * configFile) {
             }
             
             if ((text->size != 0) && (downloadFile != NULL)) {
+                fprintf(wordsOutputFile, ", %s", (char *) currentSubreddit->contents); // Output to the output CSV the title of each subreddit, just for CSV clearness.
                 text->contents = realloc(text->contents, text->size);
 
                 // Iterate through the text file to properly create the buffer, null-terminate the buffer.
