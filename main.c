@@ -4,6 +4,7 @@
 #include <math.h>
 #include <json-c/json.h>
 #include "words.c"
+#include "checkConfig.c"
 
 int getNumDigits (int numIn) {
     int numDigits = 1;
@@ -164,6 +165,8 @@ void analyzeFile(char * subredditName, json_object * configFile) {
 }
 
 int main() {
+    checkConfig();
+
     FILE * subredditsFile;
     int fileSize;
     struct memory * fileText;
